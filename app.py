@@ -11,6 +11,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URI_LOCAL")
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT')
+app.config['SECURITY_LOGOUT_URL']= '/logout_2'
 
 db.init_app(app)
 
@@ -110,6 +111,15 @@ def goto_user():
         user_id = request.form.get('user_id',type=int)
         return redirect(url_for('user_page', user_id=user_id))
     return render_template('goto.html')
+
+@app.route("/bosspage")
+@roles_required("Admin")
+def super_admin_page():
+    return "The big boss!"
+
+@app.route("/logout_2")
+def logout_2():
+    return "Loggar ut!"
 
 
 if __name__ == "__main__":
