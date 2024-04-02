@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, flash, redirect, url_for
 from flask_migrate import Migrate, upgrade
-from models import db, Person, seed_data
+from flask_security import Security, login_required, roles_accepted, roles_required
+from models import db, Person, seed_data, user_datastore
 from dotenv import load_dotenv
 import os
 
@@ -9,16 +10,21 @@ load_dotenv()
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URI_LOCAL")
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT')
 
 db.init_app(app)
 
 migrate = Migrate(app, db)
 
+security = Security(app, user_datastore)
+
 @app.route("/")
+@login_required
 def home_page():
     return render_template("index.html")
 
 @app.route("/register", methods = ["GET", "POST"])
+@login_required
 def register_new_user():
     if request.method == 'POST':
         name = request.form.get('name')
@@ -45,6 +51,7 @@ def register_new_user():
     return render_template('register_user.html')
 
 @app.route("/allusers")
+@login_required
 def all_users():
     sorting_column = request.args.get('sort_column', 'name')
     sorting_order = request.args.get('sort_order', 'asc')
@@ -91,11 +98,13 @@ def all_users():
                     )
 
 @app.route("/user/<int:user_id>")
+@login_required
 def user_page(user_id):
     user = Person.query.filter_by(id=user_id).first()
     return render_template('user_page.html', user = user)
 
 @app.route("/user/goto", methods=["GET", "POST"])
+@login_required
 def goto_user():
     if request.method == "POST":
         user_id = request.form.get('user_id',type=int)
