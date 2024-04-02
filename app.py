@@ -12,6 +12,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URI_LOCAL")
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 app.config['SECURITY_PASSWORD_SALT'] = os.getenv('SECURITY_PASSWORD_SALT')
 app.config['SECURITY_LOGOUT_URL']= '/logout_2'
+app.config['SECURITY_POST_LOGOUT_VIEW']= '/godbye'
 
 db.init_app(app)
 
@@ -121,6 +122,9 @@ def super_admin_page():
 def logout_2():
     return "Loggar ut!"
 
+@app.route("/godbye")
+def godbye():
+    return "Godbye"
 
 if __name__ == "__main__":
     with app.app_context():
